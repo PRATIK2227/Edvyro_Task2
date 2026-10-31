@@ -2,15 +2,13 @@ name: EdVyro Task 2 CI
 
 on:
   push:
-    branches:
-      - main
-
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
-  build:
+  verify:
+    name: Build and Test
     runs-on: ubuntu-latest
 
     steps:
@@ -32,4 +30,4 @@ jobs:
         run: npm run build --if-present
 
       - name: Success
-        run: echo "CI Pipeline Completed Successfully!"
+        run: echo "All CI checks completed!"
