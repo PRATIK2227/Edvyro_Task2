@@ -1,0 +1,22 @@
+import * as auth from '../services/authService.js';
+import * as jobs from '../services/internshipService.js';
+import * as apps from '../services/applicationService.js';
+import * as bookmarks from '../services/bookmarkService.js';
+import * as dashboardService from '../services/dashboardService.js';
+
+export const register = async (req,res) => res.status(201).json({success:true,data:await auth.register(req.validated.body)});
+export const login = async (req,res) => res.json({success:true,data:await auth.login(req.validated.body)});
+export const me = async (req,res) => res.json({success:true,data:{user:await auth.getMe(req.user.id)}});
+export const listJobs = async (req,res) => res.json({success:true,...await jobs.listInternships(req.validated.query)});
+export const getJob = async (req,res) => res.json({success:true,data:await jobs.getInternship(req.validated.params.id)});
+export const createJob = async (req,res) => res.status(201).json({success:true,data:await jobs.createInternship(req.user.id,req.validated.body)});
+export const updateJob = async (req,res) => res.json({success:true,data:await jobs.updateInternship(req.user.id,req.validated.params.id,req.validated.body)});
+export const deleteJob = async (req,res) => { await jobs.deleteInternship(req.user.id,req.validated.params.id); res.json({success:true,message:'Internship deleted'}); };
+export const apply = async (req,res) => res.status(201).json({success:true,data:await apps.apply(req.user.id,req.validated.params.id,req.validated.body.coverLetter)});
+export const myApplications = async (req,res) => res.json({success:true,data:await apps.mine(req.user.id)});
+export const receivedApplications = async (req,res) => res.json({success:true,data:await apps.received(req.user.id)});
+export const changeApplicationStatus = async (req,res) => res.json({success:true,data:await apps.updateStatus(req.user.id,req.validated.params.id,req.validated.body.status)});
+export const getBookmarks = async (req,res) => res.json({success:true,data:await bookmarks.listBookmarks(req.user.id)});
+export const saveBookmark = async (req,res) => { await bookmarks.addBookmark(req.user.id,req.params.internshipId); res.status(201).json({success:true}); };
+export const unsaveBookmark = async (req,res) => { await bookmarks.removeBookmark(req.user.id,req.params.internshipId); res.json({success:true}); };
+export const getDashboard = async (req,res) => res.json({success:true,data:await dashboardService.dashboard(req.user)});

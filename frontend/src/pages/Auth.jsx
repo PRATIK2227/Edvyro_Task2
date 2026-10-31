@@ -1,0 +1,13 @@
+import {useState} from 'react';
+import {Link,useNavigate} from 'react-router-dom';
+import {ArrowRight,BriefcaseBusiness} from 'lucide-react';
+import {useAuth} from '../context/AuthContext';
+export default function Auth({mode='login'}){
+ const isRegister=mode==='register', {login,register}=useAuth(),navigate=useNavigate();const [form,setForm]=useState({name:'',email:'',password:'',role:'student'}),[error,setError]=useState(''),[busy,setBusy]=useState(false);
+ const change=e=>setForm({...form,[e.target.name]:e.target.value});
+ const submit=async e=>{e.preventDefault();setError('');setBusy(true);try{if(isRegister)await register(form);else await login(form.email,form.password);navigate('/dashboard');}catch(e){setError(String(e));}finally{setBusy(false);}};
+ return <section className="auth-page"><div className="auth-art"><div className="eyebrow">CAREERCONNECT COMMUNITY</div><h2>Build a career<br/>that feels like <em>you.</em></h2><p>Good opportunities change more than your résumé. They change what you believe is possible.</p><div className="auth-art-bottom"><BriefcaseBusiness/><span>Find your people. Find your path.</span></div></div><div className="auth-form-wrap"><form className="auth-form" onSubmit={submit}><div className="eyebrow">{isRegister?'CREATE YOUR ACCOUNT':'WELCOME BACK'}</div><h1>{isRegister?'Start your story.':'Good to see you.'}</h1><p>{isRegister?'A few details and you’re on your way.':'Sign in to pick up where you left off.'}</p>
+ {isRegister&&<><label className="field-label">Full name<input name="name" value={form.name} onChange={change} required minLength="2" placeholder="Your name"/></label><label className="field-label">I am joining as<select name="role" value={form.role} onChange={change}><option value="student">Student / Candidate</option><option value="recruiter">Recruiter</option></select></label></>}
+ <label className="field-label">Email address<input name="email" type="email" value={form.email} onChange={change} required placeholder="you@example.com"/></label><label className="field-label">Password<input name="password" type="password" value={form.password} onChange={change} required minLength="8" placeholder="At least 8 characters"/></label>
+ {error&&<p className="error-message">{error}</p>}<button className="btn btn-accent full btn-large" disabled={busy}>{busy?'Please wait…':isRegister?'Create account':'Log in'} <ArrowRight size={17}/></button><p className="auth-switch">{isRegister?'Already have an account?':'New to CareerConnect?'} <Link to={isRegister?'/login':'/register'}>{isRegister?'Log in':'Create an account'}</Link></p></form></div></section>;
+}

@@ -1,0 +1,26 @@
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import compression from 'compression';
+import rateLimit from 'express-rate-limit';
+import pinoHttp from 'pino-http';
+import { randomUUID } from 'node:crypto';
+import { env } from './config/env.js';
+import { logger } from './config/logger.js';
+import api from './routes/api.js';
+import { notFound,errorHandler } from './middleware/errors.js';
+
+const app = express();
+app.disable('x-powered-by');
+app.use((req,res,next)=>{ req.id=req.get('x-request-id')||randomUUID(); res.setHeader('X-Request-ID',req.id); next(); });
+app.use(pinoHttp({logger}));
+app.use(helmet());
+app.use(cors({origin:env.CLIENT_ORIGIN.split(',').map(x=>x.trim())}));
+app.use(compression());
+app.use(express.json({limit:'1mb'}));
+app.use(rateLimit({windowMs:15*60*1000,limit:150,standardHeaders:'draft-7',legacyHeaders:false}));
+app.get('/',(_req,res)=>res.json({success:true,name:'CareerConnect API',version:'1.0.0',api:'/api/v1'}));
+app.use('/api/v1',api);
+app.use(notFound);
+app.use(errorHandler);
+export default app;
